@@ -1,24 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# author: ronnie
 
-from numpy import *
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import operator
 
-# 定义python数据导入的通用函数模块
 def createDataSet():
-    group = array([[1.0, 1.1], [1.0, 1.0], [0, 0], [0, 0.1]])
+    """ data load module
+
+    for basic test
+    """
+    group = np.array([[1.0, 1.1], [1.0, 1.0], [0, 0], [0, 0.1]])
     labels = ['A', 'A', 'B', 'B']
     return group, labels
 
-# Python实现的构造分类器
-def classify0(inX, dataSet, labels, k):
-    dataSetSize =dataSet.shape[0]
-    diffMat = tile(inX, (dataSetSize, 1)) - dataSet
-    sqDiffMat = diffMat**2
+
+def classify(inX, dataSet, labels, k):
+    """Classification
+
+    @inX: Unclassified vector
+    @dataSet: learning samples set
+    @labels: label vector for the dataSet
+    @k: counts of the neighbor
+    """
+    dataSetSize = dataSet.shape[0]
+    diffMat = np.tile(inX, (dataSetSize, 1)) - dataSet
+    sqDiffMat = diffMat ** 2
+    #calculate the sum of the row
     sqDistances = sqDiffMat.sum(axis=1)
-    distances = sqDistances**0.5
+    distances = sqDistances ** 0.5
     sortedDistIndicies = distances.argsort()
     classCount = {}
     for i in range(k):
@@ -28,15 +40,18 @@ def classify0(inX, dataSet, labels, k):
             key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
-# 读取测试文件并生成相应的Numpy矩阵
 def testfile2matrix(filename):
-    fr = open(filename)
+    """ Read test data from the file and store it into the ndarray
+
+    return the dataSet and the labelVector
+    """
+    fr = open(filename, 'r')
     arrayOLines = fr.readlines()
 
     # File lines
     numberOfLines = len(arrayOLines)
     # Numpy Matrix
-    returnMat = zeros((numberOfLines, 3))
+    returnMat = np.zeros((numberOfLines, 3))
     index = 0
 
     for line in arrayOLines:
@@ -47,15 +62,18 @@ def testfile2matrix(filename):
 
     return returnMat
 
-# 读取并解析学习文件数据并且保存到一个特定的Numpy矩阵中
 def file2matrix(filename):
-    fr = open(filename)
+    """ Read learning data from the file and store it into the ndarray
+
+    return the dataSet and the labelVector
+    """
+    fr = open(filename, 'r')
     arrayOLines = fr.readlines()
 
     # File lines
     numberOfLines = len(arrayOLines)
     # Numpy Matrix
-    returnMat = zeros((numberOfLines, 3))
+    returnMat = np.zeros((numberOfLines, 3))
     classLabelVector = []
     index = 0
 
@@ -68,45 +86,63 @@ def file2matrix(filename):
 
     return returnMat, classLabelVector
 
-# 对数据进行归一化处理
 def autoNorm(dataSet):
+    """Normalized the dataSet
+    @dataSet: .
+    """
     minVals = dataSet.min(0)
     maxVals = dataSet.max(0)
     ranges = maxVals - minVals
-    normDataSet = zeros(shape(dataSet))
+    normDataSet = np.zeros(np.shape(dataSet))
     m = dataSet.shape[0]
-    normDataSet = dataSet - tile(minVals, (m, 1))
-    normDataSet = normDataSet/tile(ranges, (m, 1))
+    normDataSet = dataSet - np.tile(minVals, (m, 1))
+    normDataSet = normDataSet/np.tile(ranges, (m, 1))
     return normDataSet, ranges, minVals
 
-# 绘制散点图，可以修改ax.scatter中参数的值来绘制三个不同值中两个值的二位散点图
-def datingShow():
+# plot the scatterplot
+def datingShowPL():
+    """Draw the scatterplot of P (as x) & L (as y)
+
+    P: percentages of time spent playing video games
+    L: liters of ice cream consumed per year
+    """
     datingDataMat, datingLabel = file2matrix('datingTestSet.txt')
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    ax.scatter(datingDataMat[:,1], datingDataMat[:,2])
+    ax.set_xlabel('percentages of time spent playing video games')
+    ax.set_ylabel('liters of ice cream consumed per year')
+    plt.show()
 
-#'''
-#    ax.scatter(datingDataMat[:,1], datingDataMat[:,2])
-#    ax.set_xlabel('percentages of time spent playing video games')
-#    ax.set_ylabel('liters of ice cream consumed per year')
-#    plt.show()
-#'''
+def datingShowFP():
+    """Draw the scatterplot of F (as x) & P (as y)
 
-#'''
-#    ax.scatter(datingDataMat[:,0], datingDataMat[:,1])
-#    ax.set_xlabel('frequent flier miles earned per year')
-#    ax.set_ylabel('percentages of time spent playing video games')
-#    plt.show()
-#'''
+    F: frequent flier miles earned per year
+    P: percentages of time spent playing video games
+    """
+    datingDataMat, datingLabel = file2matrix('datingTestSet.txt')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(datingDataMat[:,0], datingDataMat[:,1])
+    ax.set_xlabel('frequent flier miles earned per year')
+    ax.set_ylabel('percentages of time spent playing video games')
+    plt.show()
 
-#'''
+def datingShowFL():
+    """Draw the scatterplot of F (as x) & P (as y)
+
+    F: frequent flier miles earned per year
+    L: liters of ice cream consumed per year
+    """
+    datingDataMat, datingLabel = file2matrix('datingTestSet.txt')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     ax.scatter(datingDataMat[:,0], datingDataMat[:,2])
     ax.set_xlabel('frequent flier miles earned per year')
     ax.set_ylabel('liters of ice cream consumed per year')
     plt.show()
-#'''
 
-# 抽取90%的样本数据来学习，然后测试剩下的10%的样本来检测错误率
+# learn from the 90% data then classify the remaining 10%
 def datingClassTest(k):
     hoRatio = 0.1
     datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
@@ -116,7 +152,7 @@ def datingClassTest(k):
     errorCount = 0.0
     print("With k = %d" % int(k))
     for i in range(numTestVecs):
-        classifierResult = classify0(normMat[i,:], normMat[numTestVecs:m,:],\
+        classifierResult = classify(normMat[i,:], normMat[numTestVecs:m,:],\
                 datingLabels[numTestVecs:m],int(k))
         if (classifierResult != datingLabels[i]):
         	errorCount += 1.0
@@ -125,28 +161,23 @@ def datingClassTest(k):
 
     print("the total error rate is: %f" % (errorCount/float(numTestVecs)))
 
-# 对于数据进行预测
+# Prediction
 def classifyPerson(k):
     resultList = ['not at all', 'in small doses', 'in large doses']
     datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
     normMat, ranges, minVals = autoNorm(datingDataMat)
     testdatingMat = testfile2matrix('test_data.txt')
     for i in range(testdatingMat.shape[0]):
-        result = classify0((testdatingMat[i,:]-\
+        result = classify((testdatingMat[i,:]-\
             minVals)/ranges, normMat, datingLabels,k)
         print("You will probably like this person: ",\
             resultList[result - 1])
 
 def main():
 
-# 展示二维散点图
-    datingShow()
-
-# 执行python knn.py >> k-testresult可以看出k=4的时候的错误率最低
+# run python knn.py >> k-testresult k best be 4
 #    for k in range(1, 901):
 #        datingClassTest(k)
-
-# 待测试的数据个数为10个在test_data.txt文件中
     classifyPerson(4)
 
 if __name__ == '__main__':
