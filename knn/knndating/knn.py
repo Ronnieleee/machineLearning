@@ -20,10 +20,10 @@ def createDataSet():
 def classify(inX, dataSet, labels, k):
     """Classification
 
-    @inX: Unclassified vector
-    @dataSet: learning samples set
-    @labels: label vector for the dataSet
-    @k: counts of the neighbor
+    inX: Unclassified vector
+    dataSet: learning samples set
+    labels: label vector for the dataSet
+    k: counts of the neighbor
     """
     dataSetSize = dataSet.shape[0]
     diffMat = np.tile(inX, (dataSetSize, 1)) - dataSet
@@ -163,15 +163,17 @@ def datingClassTest(k):
 
 # Prediction
 def classifyPerson(k):
-    resultList = ['not at all', 'in small doses', 'in large doses']
+    resultList = ['didntLike', 'smallDoses', 'largeDoses']
     datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
     normMat, ranges, minVals = autoNorm(datingDataMat)
-    testdatingMat = testfile2matrix('test_data.txt')
+    testdatingMat = testfile2matrix('testData.txt')
+    resultfile = open("result.txt", 'w')
     for i in range(testdatingMat.shape[0]):
         result = classify((testdatingMat[i,:]-\
             minVals)/ranges, normMat, datingLabels,k)
-        print("You will probably like this person: ",\
-            resultList[result - 1])
+        #print("You will probably like this person: ",resultList[result - 1])
+        resultfile.write(resultList[result - 1] + '\n')
+    resultfile.close()
 
 def main():
 

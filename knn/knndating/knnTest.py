@@ -20,8 +20,9 @@ normMat, ranges, minVals = knn.autoNorm(datingDataMat)
 print("ranges :\n", ranges)
 print("minVals : \n", minVals)
 
-knn.datingShowPL()
-knn.datingShowFL()
-knn.datingShowFP()
+#knn.datingShowPL()
+#knn.datingShowFL()
+#knn.datingShowFP()
 
 knn.datingClassTest(3);
+knn.classifyPerson(4);
