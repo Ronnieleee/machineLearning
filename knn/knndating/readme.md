@@ -15,7 +15,7 @@
 ## 文件
 学习的数据来源于: [datingTestSet.txt](./datingTestSet.txt)
 
-测试的数据来源于: [test_data.txt](./test_data.txt)
+测试的数据来源于: [testData.txt](./testData.txt)
 
 测试的结果存储于: [result.txt](./result.txt)
 
